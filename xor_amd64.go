@@ -1,8 +1,8 @@
-// Copyright 2013 The Go Authors. All rights reserved.
+// Copyright 2018 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build !386,!amd64,!ppc64,!ppc64le,!s390x,!appengine
+// +build amd64
 
 package sasl
 
@@ -16,17 +16,14 @@ func xorBytes(dst, a, b []byte) int {
 	if n == 0 {
 		return 0
 	}
-
-	for i := 0; i < n; i++ {
-		dst[i] = a[i] ^ b[i]
-	}
+	_ = dst[n-1]
+	xorBytesSSE2(&dst[0], &a[0], &b[0], n) // amd64 must have SSE2
 	return n
 }
 
-// fastXORWords XORs multiples of 4 or 8 bytes (depending on architecture.)
-// The slice arguments a and b are assumed to be of equal length.
 func xorWords(dst, a, b []byte) {
-	for i := 0; i < len(b); i++ {
-		dst[i] = a[i] ^ b[i]
-	}
+	xorBytes(dst, a, b)
 }
+
+//go:noescape
+func xorBytesSSE2(dst, a, b *byte, n int)
