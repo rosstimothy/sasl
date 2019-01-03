@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"mellium.im/sasl"
+	"github.com/mellium/sasl"
 )
 
 // A custom SASL Mechanism that implements XOAUTH2:

@@ -7,7 +7,7 @@ package sasl_test
 import (
 	"fmt"
 
-	"mellium.im/sasl"
+	"github.com/mellium/sasl"
 )
 
 func Example_plainSuccess() {

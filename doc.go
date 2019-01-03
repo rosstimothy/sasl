@@ -12,4 +12,4 @@
 // Negotiator.
 //
 // Be advised: This API is still unstable and is subject to change.
-package sasl // import "mellium.im/sasl"
+package sasl // import "github.com/mellium/sasl"
