@@ -21,25 +21,29 @@ var (
 var (
 	// Plain is a Mechanism that implements the PLAIN authentication mechanism
 	// as defined by RFC 4616.
-	Plain Mechanism = plain
+	Plain = plain
 
 	// ScramSha256Plus is a Mechanism that implements the SCRAM-SHA-256-PLUS
 	// authentication mechanism defined in RFC 7677. The only supported channel
 	// binding type is tls-unique as defined in RFC 5929.
-	ScramSha256Plus Mechanism = scram("SCRAM-SHA-256-PLUS", sha256.New)
+	ScramSha256Plus = scram("SCRAM-SHA-256-PLUS", sha256.New)
 
 	// ScramSha256 is a Mechanism that implements the SCRAM-SHA-256
 	// authentication mechanism defined in RFC 7677.
-	ScramSha256 Mechanism = scram("SCRAM-SHA-256", sha256.New)
+	ScramSha256 = scram("SCRAM-SHA-256", sha256.New)
 
 	// ScramSha1Plus is a Mechanism that implements the SCRAM-SHA-1-PLUS
 	// authentication mechanism defined in RFC 5802. The only supported channel
 	// binding type is tls-unique as defined in RFC 5929.
-	ScramSha1Plus Mechanism = scram("SCRAM-SHA-1-PLUS", sha1.New)
+	ScramSha1Plus = scram("SCRAM-SHA-1-PLUS", sha1.New)
 
 	// ScramSha1 is a Mechanism that implements the SCRAM-SHA-1 authentication
 	// mechanism defined in RFC 5802.
-	ScramSha1 Mechanism = scram("SCRAM-SHA-1", sha1.New)
+	ScramSha1 = scram("SCRAM-SHA-1", sha1.New)
+
+	// GSSAPI is a Mechanism that implements the GSSAPI authentication
+	// mechanism defined in RFC 4752.
+	GSSAPI = gssapi
 )
 
 // Mechanism represents a SASL mechanism that can be used by a Client or Server
