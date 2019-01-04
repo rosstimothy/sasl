@@ -182,14 +182,14 @@ func gssapi(spn string) Mechanism {
 				//TODO: use established security layer
 				response[1].Set(sspi.SECBUFFER_DATA, []byte{1, 0, 0, 0}) //token)
 				response[2].Set(sspi.SECBUFFER_PADDING, make([]byte, sizes.BlockSize))
-				defer func() {
-					logrus.Info("freeing response0")
-					response[0].Free()
-					logrus.Info("freeing response1")
-					response[1].Free()
-					logrus.Info("freeing response2")
-					response[2].Free()
-				}()
+				// defer func() {
+				// 	logrus.Info("freeing response0")
+				// 	response[0].Free()
+				// 	logrus.Info("freeing response1")
+				// 	response[1].Free()
+				// 	logrus.Info("freeing response2")
+				// 	response[2].Free()
+				// }()
 
 				ret = sspi.EncryptMessage(&ctx.Handle, 0, sspi.NewSecBufferDesc(response[:]), 0)
 				if ret != sspi.SEC_E_OK {
