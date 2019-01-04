@@ -82,15 +82,18 @@ func gssapi(spn string) Mechanism {
 		},
 		Next: func(m *Negotiator, challenge []byte, data interface{}) (more bool, resp []byte, cache interface{}, err error) {
 			if challenge == nil {
-				return more, resp, cache, ErrInvalidChallenge
+				logrus.Warn("challenge was nil")
+				return false, nil, nil, ErrInvalidChallenge
 			}
 
 			ctx, ok := data.(context)
 			if !ok {
+				logrus.Warn("danger, invalid context")
 				return false, nil, nil, errors.New("invalid context")
 			}
 			defer func() {
 				if err != nil {
+					logrus.Warn("danger, error ahead")
 					sspi.FreeCredentialsHandle(&ctx.creds.Handle)
 					sspi.DeleteSecurityContext(&ctx.Handle)
 				}

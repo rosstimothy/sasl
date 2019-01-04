@@ -130,16 +130,16 @@ func (c *Negotiator) Step(challenge []byte) (more bool, resp []byte, err error) 
 		more, resp, c.cache, err = c.mechanism.Next(c, challenge, c.cache)
 	}
 
-	if err != nil {
-		return false, nil, err
-	}
-
 	logrus.WithFields(logrus.Fields{
 		"more":  more,
 		"resp":  resp,
 		"err":   err,
 		"state": c.state & StepMask,
 	}).Info("Negotiator Step")
+
+	if err != nil {
+		return false, nil, err
+	}
 	return more, resp, err
 }
 
