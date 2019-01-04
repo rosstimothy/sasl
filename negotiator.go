@@ -116,6 +116,11 @@ func (c *Negotiator) Step(challenge []byte) (more bool, resp []byte, err error) 
 		}
 	}()
 
+	logrus.WithFields(logrus.Fields{
+		"challenge": challenge,
+		"state":     c.state & StepMask,
+	}).Info("Negotiator stepping...")
+
 	switch c.state & StepMask {
 	case Initial:
 		more, resp, c.cache, err = c.mechanism.Start(c)
@@ -135,7 +140,7 @@ func (c *Negotiator) Step(challenge []byte) (more bool, resp []byte, err error) 
 		"resp":  resp,
 		"err":   err,
 		"state": c.state & StepMask,
-	}).Info("Negotiator Step")
+	}).Info("Negotiator Stepped...")
 
 	if err != nil {
 		return false, nil, err

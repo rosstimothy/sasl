@@ -109,6 +109,7 @@ func gssapi(spn string) Mechanism {
 					{BufferType: sspi.SECBUFFER_EMPTY},
 				}
 				defer func() {
+					logrus.Info("freeing inBuff")
 					inBuff[0].Free()
 					inBuff[1].Free()
 				}()
@@ -118,6 +119,10 @@ func gssapi(spn string) Mechanism {
 				token := []sspi.SecBuffer{
 					{BufferType: sspi.SECBUFFER_TOKEN},
 				}
+				defer func() {
+					logrus.Info("freeing token")
+					token[0].Free()
+				}()
 
 				target, err := syscall.UTF16PtrFromString(spn)
 				if err != nil {
@@ -147,6 +152,7 @@ func gssapi(spn string) Mechanism {
 				token[0].Set(sspi.SECBUFFER_STREAM, challenge)
 				token[1].Set(sspi.SECBUFFER_DATA, []byte{})
 				defer func() {
+					logrus.Info("freeing token")
 					token[0].Free()
 					token[1].Free()
 				}()
@@ -176,6 +182,7 @@ func gssapi(spn string) Mechanism {
 				response[1].Set(sspi.SECBUFFER_DATA, []byte{1, 0, 0, 0}) //token)
 				response[2].Set(sspi.SECBUFFER_PADDING, make([]byte, sizes.BlockSize))
 				defer func() {
+					logrus.Info("freeing response")
 					response[0].Free()
 					response[1].Free()
 					response[2].Free()
