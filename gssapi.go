@@ -2,10 +2,6 @@
 
 package sasl
 
-import (
-	"github.com/sirupsen/logrus"
-)
-
 func gssapi(spn string) Mechanism {
 	return Mechanism{
 		Name: "GSSAPI",
@@ -19,7 +15,6 @@ func gssapi(spn string) Mechanism {
 
 			state := m.State()
 
-			logrus.WithField("state", state&StepMask).Info("Next")
 			switch state & StepMask {
 			case AuthTextSent:
 			case ResponseSent:

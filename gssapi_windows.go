@@ -8,7 +8,6 @@ import (
 	"unsafe"
 
 	"github.com/alexbrainman/sspi"
-	"github.com/sirupsen/logrus"
 )
 
 type context struct {
@@ -40,7 +39,6 @@ func gssapi(spn string) Mechanism {
 				sspi.ISC_REQ_REPLAY_DETECT}
 			creds, err := sspi.AcquireCredentials("", sspi.MICROSOFT_KERBEROS_NAME, sspi.SECPKG_CRED_BOTH, nil)
 			if err != nil {
-				logrus.Error(err)
 				return false, nil, nil, errors.New("failed to acquire credentials")
 			}
 
@@ -54,7 +52,6 @@ func gssapi(spn string) Mechanism {
 
 			target, err := syscall.UTF16PtrFromString(spn)
 			if err != nil {
-				logrus.Error(err)
 				return false, nil, nil, errors.New("faild to get spn")
 			}
 
@@ -70,7 +67,6 @@ func gssapi(spn string) Mechanism {
 				&ctx.EstablishedFlags, &ctx.expiry)
 
 			if ret != sspi.SEC_I_CONTINUE_NEEDED {
-				logrus.WithField("ret", ret).Error("initializing security context failure")
 				return false, nil, nil, errors.New("failed to initialize security context")
 			}
 
@@ -82,18 +78,15 @@ func gssapi(spn string) Mechanism {
 		},
 		Next: func(m *Negotiator, challenge []byte, data interface{}) (more bool, resp []byte, cache interface{}, err error) {
 			if challenge == nil {
-				logrus.Warn("challenge was nil")
 				return false, nil, nil, ErrInvalidChallenge
 			}
 
 			ctx, ok := data.(context)
 			if !ok {
-				logrus.Warn("danger, invalid context")
 				return false, nil, nil, errors.New("invalid context")
 			}
 			defer func() {
 				if err != nil {
-					logrus.Warn("danger, error ahead")
 					sspi.FreeCredentialsHandle(&ctx.creds.Handle)
 					sspi.DeleteSecurityContext(&ctx.Handle)
 				}
@@ -101,7 +94,6 @@ func gssapi(spn string) Mechanism {
 
 			state := m.State()
 
-			logrus.WithField("state", state&StepMask).Info("Next")
 			switch state & StepMask {
 			case AuthTextSent:
 				inBuff := []sspi.SecBuffer{
@@ -115,24 +107,19 @@ func gssapi(spn string) Mechanism {
 					{BufferType: sspi.SECBUFFER_TOKEN},
 				}
 				defer func() {
-					logrus.Info("freeing token")
 					token[0].Free()
 				}()
 
 				target, err := syscall.UTF16PtrFromString(spn)
 				if err != nil {
-					logrus.Error(err)
 					return false, nil, nil, errors.New("faild to get spn")
 				}
 
-				logrus.Info("InitializeSecurityContext")
 				ret := sspi.InitializeSecurityContext(&ctx.creds.Handle, &ctx.Handle, target, ctx.RequestedFlags,
 					0, sspi.SECURITY_NATIVE_DREP, sspi.NewSecBufferDesc(inBuff), 0, &ctx.Handle, sspi.NewSecBufferDesc(token),
 					&ctx.EstablishedFlags, &ctx.expiry)
 
-				logrus.WithField("ret", ret).Info("InitializeSecurityContext done")
 				if ret != sspi.SEC_E_OK {
-					logrus.WithField("ret", ret).Error("initializing security context failure")
 					return false, nil, nil, errors.New("failed to initialize security context")
 				}
 
@@ -140,18 +127,15 @@ func gssapi(spn string) Mechanism {
 				challenge := make([]byte, len(tokenB))
 				copy(challenge, tokenB)
 
-				logrus.WithField("challenge", challenge).Info("continuing to next state...")
 				return true, challenge, ctx, nil
 			case ResponseSent:
 				var token [2]sspi.SecBuffer
 				token[0].Set(sspi.SECBUFFER_STREAM, challenge)
 				token[1].Set(sspi.SECBUFFER_DATA, []byte{})
 
-				logrus.Info("Decrypting message.....")
 				var qop uint32
 				ret := sspi.DecryptMessage(&ctx.Handle, sspi.NewSecBufferDesc(token[:]), 0, &qop)
 				if ret != sspi.SEC_E_OK {
-					logrus.WithFields(logrus.Fields{"qop": qop, "ret": ret}).Error("decrypting message failed")
 					return false, nil, nil, errors.New("failed to verify response")
 				}
 
@@ -162,7 +146,6 @@ func gssapi(spn string) Mechanism {
 
 				sizes, ret := ctx.Sizes()
 				if ret != sspi.SEC_E_OK {
-					logrus.WithError(ret).Error("couldn't get sizes")
 					return false, nil, nil, errors.New("context size information unavailable")
 				}
 
@@ -174,7 +157,6 @@ func gssapi(spn string) Mechanism {
 
 				ret = sspi.EncryptMessage(&ctx.Handle, 0, sspi.NewSecBufferDesc(response[:]), 0)
 				if ret != sspi.SEC_E_OK {
-					logrus.WithFields(logrus.Fields{"qop": qop, "ret": ret}).Error("encrypting message failed")
 					return false, nil, nil, errors.New("message encryption failed")
 				}
 
@@ -189,13 +171,9 @@ func gssapi(spn string) Mechanism {
 
 				return true, challenge, ctx, nil
 			case ValidServerResponse:
-
-				logrus.Info("finished!")
 				return false, nil, nil, nil
-			default:
-				logrus.Warn("unhandled state")
-				return
 			}
+			return
 		},
 	}
 }
