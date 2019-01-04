@@ -122,10 +122,12 @@ func gssapi(spn string) Mechanism {
 					return false, nil, nil, errors.New("faild to get spn")
 				}
 
+				logrus.Info("InitializeSecurityContext")
 				ret := sspi.InitializeSecurityContext(&ctx.creds.Handle, &ctx.Handle, target, ctx.RequestedFlags,
 					0, sspi.SECURITY_NATIVE_DREP, sspi.NewSecBufferDesc(inBuff), 0, &ctx.Handle, sspi.NewSecBufferDesc(token),
 					&ctx.EstablishedFlags, &ctx.expiry)
 
+				logrus.WithField("ret", ret).Info("InitializeSecurityContext done")
 				if ret != sspi.SEC_E_OK {
 					logrus.WithField("ret", ret).Error("initializing security context failure")
 					return false, nil, nil, errors.New("failed to initialize security context")
@@ -135,6 +137,7 @@ func gssapi(spn string) Mechanism {
 				challenge := make([]byte, len(tokenB))
 				copy(challenge, tokenB)
 
+				logrus.Info("continuing to next state...")
 				return true, challenge, ctx, nil
 			case ResponseSent:
 				var token [2]sspi.SecBuffer
@@ -193,9 +196,12 @@ func gssapi(spn string) Mechanism {
 				return true, challenge, ctx, nil
 			case ValidServerResponse:
 
+				logrus.Info("finished!")
 				return false, nil, nil, nil
+			default:
+				logrus.Warn("unhandled state")
+				return
 			}
-			return
 		},
 	}
 }
