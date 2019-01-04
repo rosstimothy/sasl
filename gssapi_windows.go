@@ -108,11 +108,11 @@ func gssapi(spn string) Mechanism {
 					{BufferType: sspi.SECBUFFER_TOKEN},
 					{BufferType: sspi.SECBUFFER_EMPTY},
 				}
-				defer func() {
-					logrus.Info("freeing inBuff")
-					inBuff[0].Free()
-					inBuff[1].Free()
-				}()
+				// defer func() {
+				// 	logrus.Info("freeing inBuff")
+				// 	inBuff[0].Free()
+				// 	inBuff[1].Free()
+				// }()
 
 				inBuff[0].Set(sspi.SECBUFFER_TOKEN, challenge)
 
