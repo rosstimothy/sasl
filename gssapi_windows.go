@@ -137,7 +137,7 @@ func gssapi(spn string) Mechanism {
 				challenge := make([]byte, len(tokenB))
 				copy(challenge, tokenB)
 
-				logrus.Info("continuing to next state...")
+				logrus.WithField("challenge", challenge).Info("continuing to next state...")
 				return true, challenge, ctx, nil
 			case ResponseSent:
 				var token [2]sspi.SecBuffer

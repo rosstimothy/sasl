@@ -8,6 +8,8 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 // State represents the current state of a Negotiator.
@@ -132,6 +134,12 @@ func (c *Negotiator) Step(challenge []byte) (more bool, resp []byte, err error) 
 		return false, nil, err
 	}
 
+	logrus.WithFields(logrus.Fields{
+		"more":  more,
+		"resp":  resp,
+		"err":   err,
+		"state": c.state & StepMask,
+	}).Info("Negotiator Step")
 	return more, resp, err
 }
 
