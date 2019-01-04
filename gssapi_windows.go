@@ -122,7 +122,7 @@ func gssapi(spn string) Mechanism {
 					return false, nil, nil, errors.New("faild to get spn")
 				}
 
-				ret := sspi.InitializeSecurityContext(&ctx.creds.Handle, nil, target, ctx.RequestedFlags,
+				ret := sspi.InitializeSecurityContext(&ctx.creds.Handle, &ctx.Handle, target, ctx.RequestedFlags,
 					0, sspi.SECURITY_NATIVE_DREP, sspi.NewSecBufferDesc(inBuff), 0, &ctx.Handle, sspi.NewSecBufferDesc(token),
 					&ctx.EstablishedFlags, &ctx.expiry)
 
