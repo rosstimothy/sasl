@@ -108,11 +108,6 @@ func gssapi(spn string) Mechanism {
 					{BufferType: sspi.SECBUFFER_TOKEN},
 					{BufferType: sspi.SECBUFFER_EMPTY},
 				}
-				// defer func() {
-				// 	logrus.Info("freeing inBuff")
-				// 	inBuff[0].Free()
-				// 	inBuff[1].Free()
-				// }()
 
 				inBuff[0].Set(sspi.SECBUFFER_TOKEN, challenge)
 
@@ -151,12 +146,6 @@ func gssapi(spn string) Mechanism {
 				var token [2]sspi.SecBuffer
 				token[0].Set(sspi.SECBUFFER_STREAM, challenge)
 				token[1].Set(sspi.SECBUFFER_DATA, []byte{})
-				defer func() {
-					logrus.Info("freeing token0")
-					token[0].Free()
-					logrus.Info("freeing token1")
-					token[1].Free()
-				}()
 
 				logrus.Info("Decrypting message.....")
 				var qop uint32
@@ -182,14 +171,6 @@ func gssapi(spn string) Mechanism {
 				//TODO: use established security layer
 				response[1].Set(sspi.SECBUFFER_DATA, []byte{1, 0, 0, 0}) //token)
 				response[2].Set(sspi.SECBUFFER_PADDING, make([]byte, sizes.BlockSize))
-				// defer func() {
-				// 	logrus.Info("freeing response0")
-				// 	response[0].Free()
-				// 	logrus.Info("freeing response1")
-				// 	response[1].Free()
-				// 	logrus.Info("freeing response2")
-				// 	response[2].Free()
-				// }()
 
 				ret = sspi.EncryptMessage(&ctx.Handle, 0, sspi.NewSecBufferDesc(response[:]), 0)
 				if ret != sspi.SEC_E_OK {
