@@ -9,7 +9,7 @@ import (
 	"github.com/alexbrainman/sspi"
 )
 
-func negotiate(spn string) Mechanism {
+func ntlm(spn string) Mechanism {
 	return Mechanism{
 		Name: "GSS-SPGENO",
 		Start: func(m *Negotiator) (bool, []byte, interface{}, error) {
@@ -18,7 +18,7 @@ func negotiate(spn string) Mechanism {
 				sspi.ISC_REQ_ALLOCATE_MEMORY |
 				sspi.ISC_REQ_CONFIDENTIALITY |
 				sspi.ISC_REQ_REPLAY_DETECT}
-			creds, err := sspi.AcquireCredentials("", sspi.NEGOSSP_NAME, sspi.SECPKG_CRED_BOTH, nil)
+			creds, err := sspi.AcquireCredentials("", sspi.NTLMSP_NAME, sspi.SECPKG_CRED_BOTH, nil)
 			if err != nil {
 				return false, nil, nil, errors.New("failed to acquire credentials")
 			}

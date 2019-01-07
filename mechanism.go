@@ -48,6 +48,9 @@ var (
 	// Negotiate is a Mechanism that implements the GSS-SPNEGO authentication
 	// mechanism defined in RFC 4178.
 	Negotiate = negotiate
+
+	//NTLM is a Mechanism that implements  Microsoft NTLM
+	NTLM = ntlm
 )
 
 // Mechanism represents a SASL mechanism that can be used by a Client or Server
