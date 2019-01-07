@@ -15,9 +15,9 @@ func ntlm(spn string) Mechanism {
 		Start: func(m *Negotiator) (bool, []byte, interface{}, error) {
 
 			ctx := context{RequestedFlags: sspi.ISC_REQ_MUTUAL_AUTH |
-				sspi.ISC_REQ_ALLOCATE_MEMORY |
-				sspi.ISC_REQ_CONFIDENTIALITY |
-				sspi.ISC_REQ_REPLAY_DETECT}
+				sspi.ISC_REQ_ALLOCATE_MEMORY} // |
+			// sspi.ISC_REQ_CONFIDENTIALITY |
+			// sspi.ISC_REQ_REPLAY_DETECT}
 			creds, err := sspi.AcquireCredentials("", sspi.NTLMSP_NAME, sspi.SECPKG_CRED_BOTH, nil)
 			if err != nil {
 				return false, nil, nil, errors.New("failed to acquire credentials")
@@ -106,13 +106,16 @@ func ntlm(spn string) Mechanism {
 
 				switch ret {
 				case sspi.SEC_E_OK:
+					if len(challenge) > 0 {
+						return true, challenge, ctx, nil
+					}
 					return false, challenge, ctx, nil
 				case sspi.SEC_I_COMPLETE_NEEDED, sspi.SEC_I_COMPLETE_AND_CONTINUE:
 					ret = sspi.CompleteAuthToken(&ctx.Handle, sspi.NewSecBufferDesc(token))
 					if ret != sspi.SEC_E_OK {
-						return false, nil, ctx, errors.New("failed to complete authentication")
+						return true, challenge, ctx, errors.New("failed to complete authentication")
 					}
-					return false, nil, ctx, nil
+					return true, challenge, ctx, nil
 				case sspi.SEC_I_CONTINUE_NEEDED:
 				default:
 					return true, challenge, ctx, nil
