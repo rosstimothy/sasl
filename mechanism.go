@@ -44,6 +44,10 @@ var (
 	// GSSAPI is a Mechanism that implements the GSSAPI authentication
 	// mechanism defined in RFC 4752.
 	GSSAPI = gssapi
+
+	// Negotiate is a Mechanism that implements the GSS-SPNEGO authentication
+	// mechanism defined in RFC 4178.
+	Negotiate = negotiate
 )
 
 // Mechanism represents a SASL mechanism that can be used by a Client or Server
